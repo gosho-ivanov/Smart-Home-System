@@ -1,0 +1,203 @@
+/* General Reset and Styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa; /* Light gray background */
+    color: #333; /* Darker text color */
+}
+
+/* Header Styles */
+header {
+    background-color: #007BFF; /* Bootstrap primary color */
+    color: white;
+    text-align: center;
+    padding: 20px 0;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin: 0;
+}
+
+
+/* Login Section */
+
+
+.login-section {
+    margin: 50px auto;
+    max-width: 400px;
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 1); /* Subtle shadow */
+}
+
+.login-section h1 {
+    color: #333;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.password-container {
+    position: relative;
+}
+
+#togglePasswordChecked {
+    display: none; /* Initially hide the "❌" */
+}
+
+.password-container .form-control {
+    width: 100%;
+    padding-right: 40px; /* Add padding to make space for the emoji */
+}
+
+.password-container .emoji-eye {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.login-section label {
+    font-weight: bold;
+    margin-top: 10px;
+    display: block;
+}
+
+.login-section .form-control {
+    margin-bottom: 15px;
+    height: calc(2.5rem + 2px); /* Match Bootstrap input size */
+}
+
+.login-section .btn {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2);
+    font-weight: bold;
+}
+
+.login-section p {
+    color: #333;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.login-section a {
+    color: #007BFF;
+    text-decoration: none;
+}
+
+.login-section a:hover {
+    text-decoration: underline;
+}
+.login-section .emoji-eye {
+    font-size: 1rem; /* Adjust the size */
+    cursor: pointer;
+    text-align: left; /* Align text to the left */
+    display: inline-block; /* Make it inline block */
+}
+
+/* Register Section */
+.register-section {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.register-section h1 {
+    color: black;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.register-section label {
+    color: #333;
+    font-weight: bold;
+    margin-top: 10px;
+    text-align: left;
+    display: block;
+}
+
+.register-section .form-control {
+    margin-bottom: 15px;
+    height: calc(2.5rem + 2px); /* Match Bootstrap input size */
+}
+
+.register-section .btn {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.register-section small {
+    font-size: 0.9rem;
+    color: #555;
+    display: block;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.register-section p {
+    color: #333;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.register-section a {
+    color: #007BFF;
+    text-decoration: none;
+}
+
+.register-section a:hover {
+    text-decoration: underline;
+}
+
+footer {
+    text-align: center;
+    padding: 20px 0;
+    background-color: #007BFF; /* Bootstrap primary color */
+    color: white;
+    position: relative;
+    bottom:0;
+    width: 100%;
+}
+
+/* Media Query for Responsiveness */
+@media (max-width: 576px) {
+    .login-section {
+        margin: 20px auto;
+        padding: 20px;
+    }
+    .register-section {
+        margin: 20px auto;
+        padding: 20px;
+    }
+    header h1 {
+        font-size: 2rem;
+    }
+
+    .login-section h1 {
+        font-size: 1.8rem;
+    }
+
+    .login-section .btn {
+        font-size: 0.9rem;
+    }
+
+    .register-section h1 {
+        font-size: 1.8rem;
+    }
+
+    .register-section .btn {
+        font-size: 0.9rem;
+    }
+}
