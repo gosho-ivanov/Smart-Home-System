@@ -10,52 +10,26 @@
 <body>
     <!--Header -->
     <header>
-        
-            <h1 class="navbar-brand">Smart Home System</h1>
-
-        <main>
+        <h1 class="navbar-brand">Smart Home System</h1>
+    </header>
+    <main>
             <section class="login-section">
                 <h1>Log in</h1>
                 <form action="process-login.php" method="POST">
 
                     <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required>
-    
-                    <div class="password-container">
-                        <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
-                        <span id="togglePassword" class="emoji-eye">👁️</span>
-                        <span id="togglePasswordChecked" class="emoji-eye">❌</span>
-                    </div>
-                
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
                     <button type="submit" class="btn btn-primary mt-3">Log in</button>
+               
                 </form>
                 <p>Don't have an account? <a href="register.html">Register here</a></p>
             </section>
-        </main>
+    </main>
     <!--Footer-->
 <footer>
     <p>&copy; 2024 Smart Home System</p>
 
-<script>
-        const password = document.getElementById('password');
-        const togglePassword = document.getElementById('togglePassword');
-        const togglePasswordChecked = document.getElementById('togglePasswordChecked');
-    
-        // Function to toggle password visibility
-        function togglePasswordVisibility() {
-            const isPasswordHidden = password.type === 'password';  // Check if the password is hidden
-    
-            // Toggle password type (password or text)
-            password.type = isPasswordHidden ? 'text' : 'password';
-    
-            // Toggle emoji visibility
-            togglePassword.style.display = isPasswordHidden ? 'none' : 'inline';  // Show eye when password is hidden
-            togglePasswordChecked.style.display = isPasswordHidden ? 'inline' : 'none';  // Show X when password is visible
-        }
-    
-        // Add event listeners to both emojis
-        togglePassword.addEventListener('click', togglePasswordVisibility);
-        togglePasswordChecked.addEventListener('click', togglePasswordVisibility);
-        </script>
+<script></script>
     
 </body>
 </html>

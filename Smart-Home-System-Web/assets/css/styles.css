@@ -1,10 +1,24 @@
 /* General Reset and Styling */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f8f9fa; /* Light gray background */
+    background-color: #007BFF; /* Light gray background */
     color: #333; /* Darker text color */
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+}
+
+main {
+    flex: 1;
+    background-color: #007BFF;
 }
 
 /* Header Styles */
@@ -44,23 +58,6 @@ header h1 {
     position: relative;
 }
 
-#togglePasswordChecked {
-    display: none; /* Initially hide the "❌" */
-}
-
-.password-container .form-control {
-    width: 100%;
-    padding-right: 40px; /* Add padding to make space for the emoji */
-}
-
-.password-container .emoji-eye {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-}
-
 .login-section label {
     font-weight: bold;
     margin-top: 10px;
@@ -94,13 +91,6 @@ header h1 {
 .login-section a:hover {
     text-decoration: underline;
 }
-.login-section .emoji-eye {
-    font-size: 1rem; /* Adjust the size */
-    cursor: pointer;
-    text-align: left; /* Align text to the left */
-    display: inline-block; /* Make it inline block */
-}
-
 /* Register Section */
 .register-section {
     max-width: 600px;
@@ -167,7 +157,6 @@ footer {
     background-color: #007BFF; /* Bootstrap primary color */
     color: white;
     position: relative;
-    bottom:0;
     width: 100%;
 }
 
