@@ -1,23 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title></title>
-        <link rel="stylesheet" href="assets/css/styles.css">
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-        </head>
-    <body>
-        <header>
-            <h1 class="navbar-brand">Smart Home System</h1>
-        </header>
-        <main>
-            <section class="main-section">
-                            
-            </section>
-        </main>
-        <footer>
-            <p>&copy; 2024 Smart Home System</p>
-        </footer>
-        </body>
-        </html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page - Smart Home System</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <header>
+        <h1 class="navbar-brand">Smart Home System</h1>
+    </header>
+    <main>
+        <section class="main-section">
+            <div id="room-container">
+                <!-- Room container will be populated dynamically -->
+            </div>
+            <button id="create-room-btn" class="btn btn-primary mt-3">+ Create a room</button>
+              
+            <!-- Modal -->
+            <div id="modal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <span class="close-btn">&times;</span>
+                    <input type="text" id="room-name" placeholder="Enter room name" />
+                    <button id="save-room" class="btn btn-success mt-2">Save</button>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 Smart Home System</p>
+    </footer>
+    <script src="assets/js/mainPage.js"></script>
+</body>
+</html>
