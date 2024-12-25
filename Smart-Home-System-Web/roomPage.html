@@ -15,11 +15,14 @@
     <main>
         <section class="room-section">
             <!-- Room content goes here -->
-             <button id = "btn-lights">Add lights +</button>
+            <button id="btn-add-light" class="btn btn-primary mt-3">Add lights +</button>
+            <div id="lights-container" class="mt-3">
+                <!-- Light buttons will be added here dynamically -->
+            </div>
         </section>
     </main>
     <!-- Modal -->
-    <div id="myModal" class="modal">
+    <div id="myModal" class="modal" style="display:none;">
         <div class="modal-content">
             <span class="close">&times;</span>
             <p>This container</p>

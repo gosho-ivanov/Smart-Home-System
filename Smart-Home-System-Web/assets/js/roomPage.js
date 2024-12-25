@@ -40,3 +40,36 @@ document.addEventListener('DOMContentLoaded', (event) => {
         });
     });
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('myModal');
+    const btnAddLight = document.getElementById('btn-add-light');
+    const lightsContainer = document.getElementById('lights-container');
+    const closeBtn = document.querySelector('.close');
+
+    // Show the modal when a light button is clicked
+    function showModal() {
+        modal.style.display = 'block';
+    }
+
+    // Hide the modal when the close button is clicked
+    closeBtn.addEventListener('click', function() {
+        modal.style.display = 'none';
+    });
+
+    // Hide the modal when clicking outside of the modal content
+    window.addEventListener('click', function(event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    // Add a new light button when the "Add lights +" button is clicked
+    btnAddLight.addEventListener('click', function() {
+        const lightButton = document.createElement('button');
+        lightButton.className = 'btn btn-secondary mt-2';
+        lightButton.textContent = 'Light ' + (lightsContainer.children.length + 1);
+        lightButton.addEventListener('click', showModal);
+        lightsContainer.appendChild(lightButton);
+    });
+});
