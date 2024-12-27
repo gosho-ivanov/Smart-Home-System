@@ -13,11 +13,22 @@
         <button class="back-btn" id="back-btn">Back</button>
     </header>
     <main>
-        <section class="room-section">
-            <!-- Room content goes here -->
-            <button id="btn-add-light" class="btn btn-primary mt-3">Add lights +</button>
-            <div id="lights-container" class="mt-3">
-                <!-- Light buttons will be added here dynamically -->
+        <section class="room-section d-flex justify-content-between">
+            <!-- Lights Container -->
+            <div class="lights-container device-container" id="lights-container">
+                <h2>Lights</h2>
+                <button id="btn-add-light" class="btn btn-primary mt-3">Add lights +</button>
+                <div id="lights-buttons" class="mt-3">
+                    <!-- Light buttons will be added here dynamically -->
+                </div>
+            </div>
+            <!-- Sockets Container -->
+            <div class="sockets-container device-container" id="sockets-container">
+                <h2>Sockets</h2>
+                <button id="btn-add-socket" class="btn btn-primary mt-3">Add sockets +</button>
+                <div id="sockets-buttons" class="mt-3">
+                    <!-- Socket buttons will be added here dynamically -->
+                </div>
             </div>
         </section>
     </main>
@@ -25,7 +36,11 @@
     <div id="myModal" class="modal" style="display:none;">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <p>This container</p>
+            <button id="toggle-light" class="btn mt-2">Turn On</button>
+            <button id="delete-light" class="btn btn-danger mt-2">Delete</button>
+            <label for="dimmer" class="mt-2">Dimmer:</label>
+            <input type="range" id="dimmer" min="0" max="100" value="100" disabled>
+            <span id="dimmer-value">100%</span>
         </div>
     </div>
     <footer>

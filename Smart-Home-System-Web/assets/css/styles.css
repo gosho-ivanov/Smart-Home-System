@@ -235,3 +235,65 @@ footer {
     text-decoration: none;
     cursor: pointer;
 }
+
+/* General styles for the containers */
+.device-container {
+    width: 45%;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    overflow-y: auto; /* Only vertical scrolling if needed */
+    max-height: 400px; /* Optional: Set a maximum height for each container */
+}
+
+/* Button container inside each device container */
+#lights-buttons, #sockets-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Titles and buttons styles */
+.device-container h2 {
+    text-align: center;
+}
+
+.device-container .btn {
+    width: 100%;
+}
+
+/* Room section layout */
+.room-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* Prevents mutual stretching */
+    gap: 20px; /* Adds space between the two containers */
+}
+
+/* Specific styles for each container */
+.lights-container .mt-3, .sockets-container .mt-3 {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+
+/* Ensure buttons are displayed correctly */
+.btn {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
