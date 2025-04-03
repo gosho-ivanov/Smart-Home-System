@@ -1,93 +1,85 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const modal = document.getElementById('modal');
     const createRoomBtn = document.getElementById('create-room-btn');
-    const closeBtn = document.querySelector('.close-btn');
     const saveRoomBtn = document.getElementById('save-room');
     const roomContainer = document.getElementById('room-container');
+    const exitModalBtn = document.getElementById('exit-modal');
+    const cameraBtn = document.getElementById('camera-btn');
+    const cameraWindow = document.getElementById('camera-window');
+    const closeCameraWindowBtn = document.getElementById('close-camera-window');
 
-    // Load rooms from the database on page load
-    fetch('/rooms')
-        .then(response => response.json())
-        .then(rooms => {
-            rooms.forEach(room => addRoomToContainer(room));
-        })
-        .catch(error => console.error('Error fetching rooms:', error));
+    // JSON array to store rooms
+    let rooms = [];
 
-    // Show the modal when the "Create a room" button is clicked
-    createRoomBtn.addEventListener('click', function() {
+    // Show the modal when the "Create a Room" button is clicked
+    createRoomBtn.addEventListener('click', function () {
         modal.style.display = 'block';
         document.getElementById('room-name').focus();
     });
 
-    // Hide the modal when clicking outside of the modal content
-    window.addEventListener('click', function(event) {
-        if (event.target == modal) {
-            modal.style.display = 'none';
-        }
+    // Hide the modal when the "Exit" button is clicked
+    exitModalBtn.addEventListener('click', function () {
+        modal.style.display = 'none';
     });
 
     // Handle the save room button click
-    saveRoomBtn.addEventListener('click', function() {
+    saveRoomBtn.addEventListener('click', function () {
         const roomName = document.getElementById('room-name').value.trim();
         if (!roomName) {
             alert('Please enter a room name.');
             return;
         }
 
-        // Send POST request to the backend to save the room
-        fetch('/rooms', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: roomName })
-        })
-        .then(response => response.json())
-        .then(room => {
-            addRoomToContainer(room);
-            modal.style.display = 'none';
-            document.getElementById('room-name').value = '';
-        })
-        .catch(error => console.error('Error saving room:', error));
-    });
+        // Add the room to the JSON array
+        const newRoom = { id: rooms.length + 1, name: roomName };
+        rooms.push(newRoom);
 
-    // Event delegation for dynamically added buttons
-    roomContainer.addEventListener('click', function(event) {
-        if (event.target.classList.contains('room-btn')) {
-            const roomName = event.target.getAttribute('data-room-name');
-            window.location.href = `roomPage.html?roomName=${encodeURIComponent(roomName)}`;
-        }
+        // Update the room container
+        addRoomToContainer(newRoom);
 
-        if (event.target.classList.contains('delete-btn')) {
-            const roomId = event.target.getAttribute('data-room-id');
-            if (confirm('Are you sure you want to delete this room?')) {
-                deleteRoom(roomId, event.target.closest('.room'));
-            }
-        }
+        // Clear the input and hide the modal
+        document.getElementById('room-name').value = '';
+        modal.style.display = 'none';
+
+        // Log the JSON array for debugging
+        console.log('Rooms:', rooms);
     });
 
     // Function to add a room to the container
     function addRoomToContainer(room) {
-        const newRoom = document.createElement('div');
-        newRoom.className = 'room';
-        newRoom.innerHTML = `
-            <h2>${room.name}</h2>
-            <button class="room-btn" data-room-name="${room.name}">View</button>
-            <button class="delete-btn" data-room-id="${room.id}">Delete</button>
-        `;
-        roomContainer.appendChild(newRoom);
+        const newRoomButton = document.createElement('button');
+        newRoomButton.className = 'room-btn btn btn-primary btn-block';
+        newRoomButton.style.marginBottom = '10px';
+        newRoomButton.textContent = room.name;
+
+        // Add click event to navigate to the room page
+        newRoomButton.addEventListener('click', function () {
+            // Store the room name in localStorage
+            localStorage.setItem('selectedRoom', room.name);
+
+            // Redirect to the room page
+            window.location.href = 'roomPage.html';
+        });
+
+        roomContainer.appendChild(newRoomButton);
     }
 
-    // Function to delete a room
-    function deleteRoom(roomId, roomElement) {
-        fetch(`/rooms/${roomId}`, {
-            method: 'DELETE'
-        })
-        .then(response => {
-            if (response.ok) {
-                roomElement.remove();
-            } else {
-                console.error('Error deleting room');
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
+    // Camera Window
+    cameraBtn.addEventListener('click', () => {
+        cameraWindow.style.display = 'block';
+    });
+
+    closeCameraWindowBtn.addEventListener('click', () => {
+        cameraWindow.style.display = 'none';
+    });
+});
+
+document.getElementById('show-window-btn').addEventListener('click', () => {
+    const blankWindow = document.getElementById('blank-window');
+    blankWindow.style.display = 'block';
+});
+
+document.getElementById('close-window-btn').addEventListener('click', () => {
+    const blankWindow = document.getElementById('blank-window');
+    blankWindow.style.display = 'none';
 });
