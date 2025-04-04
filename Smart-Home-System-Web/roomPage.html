@@ -26,6 +26,13 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -44,7 +51,9 @@
                     <div id="lights-buttons" class="mt-3">
                         <!-- Light buttons will be added here dynamically -->
                     </div>
+                    <pre id="lights-json">[]</pre>
                 </div>
+
                 <!-- Sockets Container -->
                 <div class="sockets-container device-container" id="sockets-container">
                     <h2>Sockets</h2>
@@ -52,39 +61,19 @@
                     <div id="sockets-buttons" class="mt-3">
                         <!-- Socket buttons will be added here dynamically -->
                     </div>
+                    <pre id="sockets-json">[]</pre>
+                </div>
+
+                <!-- Temperature Container -->
+                <div class="temperature-container device-container" id="temperature-container">
+                    <h2>Temperature</h2>
+                    <p>Current Temperature: <span id="temperature-value">22</span>°C</p>
+                    <button id="btn-temp-up" class="btn btn-success mt-2">Up</button>
+                    <button id="btn-temp-down" class="btn btn-danger mt-2">Down</button>
                 </div>
             </section>
         </div>
     </main>
-    <!-- Modal -->
-    <div id="myModal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <button id="toggle-light" class="btn mt-2">Turn On</button>
-            <button id="delete-light" class="btn btn-danger mt-2">Delete</button>
-            <label for="dimmer" class="mt-2">Dimmer:</label>
-            <input type="range" id="dimmer" min="0" max="100" value="100" disabled>
-            <span id="dimmer-value">100%</span>
-        </div>
-    </div>
-    <footer>
-        <p>&copy; 2025 Smart Home System</p>
-    </footer>
     <script src="assets/js/roomPage.js"></script>
-    <script>
-        // Retrieve the selected room name from localStorage
-        const roomName = localStorage.getItem('selectedRoom');
-
-        // Set the room name in the header and the page title
-        if (roomName) {
-            document.getElementById('room-title').textContent = roomName;
-            document.title = roomName; // Update the page title
-        }
-
-        // Back button functionality
-        document.getElementById('back-btn').addEventListener('click', () => {
-            window.location.href = 'mainPage.html'; // Redirect back to the main page
-        });
-    </script>
 </body>
 </html>

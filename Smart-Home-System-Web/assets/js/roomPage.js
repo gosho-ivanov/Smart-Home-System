@@ -114,3 +114,89 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     });
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Lights and Sockets JSON lists
+    const lights = [];
+    const sockets = [];
+
+    // DOM elements
+    const lightsButtonsContainer = document.getElementById('lights-buttons');
+    const socketsButtonsContainer = document.getElementById('sockets-buttons');
+    const lightsJsonContainer = document.getElementById('lights-json');
+    const socketsJsonContainer = document.getElementById('sockets-json');
+    const addLightBtn = document.getElementById('btn-add-light');
+    const addSocketBtn = document.getElementById('btn-add-socket');
+
+    // Function to update the JSON display
+    function updateJsonDisplay() {
+        lightsJsonContainer.textContent = JSON.stringify(lights, null, 2);
+        socketsJsonContainer.textContent = JSON.stringify(sockets, null, 2);
+    }
+
+    // Function to add a light
+    addLightBtn.addEventListener('click', function () {
+        const lightId = lights.length + 1;
+        const light = { id: lightId, name: `Light ${lightId}` };
+        lights.push(light);
+
+        // Create a button for the light
+        const lightButton = document.createElement('button');
+        lightButton.textContent = light.name;
+        lightButton.className = 'btn btn-secondary btn-sm';
+        lightButton.style.marginRight = '5px';
+
+        // Add functionality to the light button
+        lightButton.addEventListener('click', function () {
+            alert(`You clicked ${light.name}`);
+        });
+
+        lightsButtonsContainer.appendChild(lightButton);
+        updateJsonDisplay(); // Update the JSON display
+    });
+
+    // Function to add a socket
+    addSocketBtn.addEventListener('click', function () {
+        const socketId = sockets.length + 1;
+        const socket = { id: socketId, name: `Socket ${socketId}` };
+        sockets.push(socket);
+
+        // Create a button for the socket
+        const socketButton = document.createElement('button');
+        socketButton.textContent = socket.name;
+        socketButton.className = 'btn btn-secondary btn-sm';
+        socketButton.style.marginRight = '5px';
+
+        // Add functionality to the socket button
+        socketButton.addEventListener('click', function () {
+            alert(`You clicked ${socket.name}`);
+        });
+
+        socketsButtonsContainer.appendChild(socketButton);
+        updateJsonDisplay(); // Update the JSON display
+    });
+
+    // Initialize JSON display
+    updateJsonDisplay();
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Temperature controls
+    const temperatureValue = document.getElementById('temperature-value');
+    const tempUpBtn = document.getElementById('btn-temp-up');
+    const tempDownBtn = document.getElementById('btn-temp-down');
+
+    let currentTemperature = 22; // Default temperature
+
+    // Increase temperature
+    tempUpBtn.addEventListener('click', function () {
+        currentTemperature++;
+        temperatureValue.textContent = currentTemperature;
+    });
+
+    // Decrease temperature
+    tempDownBtn.addEventListener('click', function () {
+        currentTemperature--;
+        temperatureValue.textContent = currentTemperature;
+    });
+});
