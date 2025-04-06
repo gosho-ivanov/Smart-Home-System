@@ -8,13 +8,27 @@ document.addEventListener('DOMContentLoaded', function () {
     const cameraWindow = document.getElementById('camera-window');
     const closeCameraWindowBtn = document.getElementById('close-camera-window');
 
-    // JSON array to store rooms
+    // Sample rooms data (would normally come from backend)
     let rooms = [];
+
+    // Initialize the room container with sample rooms
+    function initializeRooms() {
+        rooms.forEach(room => {
+            addRoomToContainer(room);
+        });
+    }
 
     // Show the modal when the "Create a Room" button is clicked
     createRoomBtn.addEventListener('click', function () {
         modal.style.display = 'block';
         document.getElementById('room-name').focus();
+    });
+
+    // Hide the modal when clicking outside content
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
     });
 
     // Hide the modal when the "Exit" button is clicked
@@ -30,8 +44,11 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // Add the room to the JSON array
-        const newRoom = { id: rooms.length + 1, name: roomName };
+        // Add the room to the array
+        const newRoom = { 
+            id: Date.now(), // Use timestamp as unique ID
+            name: roomName 
+        };
         rooms.push(newRoom);
 
         // Update the room container
@@ -40,28 +57,31 @@ document.addEventListener('DOMContentLoaded', function () {
         // Clear the input and hide the modal
         document.getElementById('room-name').value = '';
         modal.style.display = 'none';
-
-        // Log the JSON array for debugging
-        console.log('Rooms:', rooms);
     });
 
     // Function to add a room to the container
     function addRoomToContainer(room) {
-        const newRoomButton = document.createElement('button');
-        newRoomButton.className = 'room-btn btn btn-primary btn-block';
-        newRoomButton.style.marginBottom = '10px';
-        newRoomButton.textContent = room.name;
+        const roomCard = document.createElement('div');
+        roomCard.className = 'room-btn';
+        roomCard.innerHTML = `
+            <span>${room.name}</span>
+            <div class="room-icon">🏠</div>
+        `;
 
         // Add click event to navigate to the room page
-        newRoomButton.addEventListener('click', function () {
-            // Store the room name in localStorage
+        roomCard.addEventListener('click', function () {
             localStorage.setItem('selectedRoom', room.name);
-
-            // Redirect to the room page
             window.location.href = 'roomPage.html';
         });
 
-        roomContainer.appendChild(newRoomButton);
+        roomContainer.appendChild(roomCard);
+        
+        // Add animation
+        roomCard.style.opacity = '0';
+        setTimeout(() => {
+            roomCard.style.transition = 'opacity 0.3s ease';
+            roomCard.style.opacity = '1';
+        }, 10);
     }
 
     // Camera Window
@@ -72,14 +92,14 @@ document.addEventListener('DOMContentLoaded', function () {
     closeCameraWindowBtn.addEventListener('click', () => {
         cameraWindow.style.display = 'none';
     });
-});
 
-document.getElementById('show-window-btn').addEventListener('click', () => {
-    const blankWindow = document.getElementById('blank-window');
-    blankWindow.style.display = 'block';
-});
+    // Close camera window when clicking outside
+    cameraWindow.addEventListener('click', function(e) {
+        if (e.target === cameraWindow) {
+            cameraWindow.style.display = 'none';
+        }
+    });
 
-document.getElementById('close-window-btn').addEventListener('click', () => {
-    const blankWindow = document.getElementById('blank-window');
-    blankWindow.style.display = 'none';
+    // Initialize rooms on page load
+    initializeRooms();
 });
