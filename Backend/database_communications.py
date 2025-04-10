@@ -1,34 +1,105 @@
 import mysql.connector
+from mysql.connector import Error
+import json
 
-def connect_to_db():
-    try:
-        conn = mysql.connector.connect(
-            host="127.0.01",
-            user="root",
-            password="",
-            database="SmartHome"
-        )
-        return conn
-    except mysql.connector.Error as err:
-        print(f"Error: {err}")
-        return None
+class SmartHomeDB:
+    def __init__(self):
+        self.connection = None
+        self.connect()
+    
+    def connect(self):
+        try:
+            self.connection = mysql.connector.connect(
+                host='localhost',
+                database='smart_home_system',
+                user='root',
+                password='2Bme6AqgzU5xLq'
+            )
+            if self.connection.is_connected():
+                print("Connected to MySQL database")
+        except Error as e:
+            print(f"Error while connecting to MySQL: {e}")
+    
+    def disconnect(self):
+        if self.connection and self.connection.is_connected():
+            self.connection.close()
+            print("MySQL connection is closed")
+    
+    def execute_query(self, query, params=None, fetch=False):
+        cursor = None
+        try:
+            cursor = self.connection.cursor(dictionary=True)
+            cursor.execute(query, params or ())
+            
+            if fetch:
+                result = cursor.fetchall()
+                return result
+            else:
+                self.connection.commit()
+                return cursor.rowcount
+        except Error as e:
+            print(f"Error executing query: {e}")
+            return None
+        finally:
+            if cursor: cursor.close()
+    
+    # User management
+    def create_user(self, username, email, password_hash):
+        query = """
+        INSERT INTO users (username, email, password_hash)
+        VALUES (%s, %s, %s)
+        """
+        return self.execute_query(query, (username, email, password_hash))
+    
+    def get_user(self, email):
+        query = "SELECT * FROM users WHERE email = %s"
+        return self.execute_query(query, (email,), fetch=True)
+    
+    # Room management
+    def create_room(self, user_id, name):
+        query = "INSERT INTO rooms (user_id, name) VALUES (%s, %s)"
+        return self.execute_query(query, (user_id, name))
+    
+    def get_user_rooms(self, user_id):
+        query = "SELECT * FROM rooms WHERE user_id = %s"
+        return self.execute_query(query, (user_id,), fetch=True)
+    
+    # Device management
+    def add_device(self, room_id, name, device_type, status='off'):
+        query = """
+        INSERT INTO devices (room_id, name, type, status)
+        VALUES (%s, %s, %s, %s)
+        """
+        device_id = self.execute_query(query, (room_id, name, device_type, status))
+        
+        if device_type == 'light':
+            self.execute_query(
+                "INSERT INTO lights (light_id, brightness) VALUES (%s, %s)",
+                (device_id, 100)
+            )
+        elif device_type == 'thermostat':
+            self.execute_query(
+                "INSERT INTO thermostats (thermostat_id, current_temperature, target_temperature) VALUES (%s, %s, %s)",
+                (device_id, 22.0, 24.0)
+            )
+        
+        return device_id
+    
+    def get_room_devices(self, room_id):
+        query = "SELECT * FROM devices WHERE room_id = %s"
+        return self.execute_query(query, (room_id,), fetch=True)
+    
+    def toggle_device(self, device_id):
+        query = "CALL ToggleDeviceStatus(%s)"
+        return self.execute_query(query, (device_id,), fetch=True)
 
-def insert_data(conn, table, data):
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO %s (name, email) VALUES (" + ",".join(["%s" for i in data])+ ")" (table))
-    conn.commit()
-    cursor.close()
-
-def fetch_data(conn):
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users")
-    rows = cursor.fetchall()
-    for row in rows:
-        print(row)
-    cursor.close()
-
-def main():
-    pass
+# Example usage
 if __name__ == "__main__":
-    main()
-
+    db = SmartHomeDB()
+    
+    # Test connection
+    rooms = db.get_user_rooms(1)
+    print("User rooms:", json.dumps(rooms, indent=2))
+    
+    # Close connection
+    db.disconnect()

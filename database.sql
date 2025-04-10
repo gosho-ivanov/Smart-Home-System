@@ -1,66 +1,93 @@
-CREATE Database SmartHome;
-use SmartHome;
+CREATE DATABASE smart_home_system;
+USE smart_home_system;
 
-CREATE TABLE Packages(
-	id INT AUTO_INCREMENT PRIMARY KEY,
-    PackageNAME NVARCHAR(255) NOT NULL,
-    PackageType NVARCHAR(255) NOT NULL,
-    IncludedAppliances NVARCHAR(1000) NOT NULL,
-    Price FLOAT(10, 2) NOT NULL
+-- Users table
+CREATE TABLE users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_login TIMESTAMP NULL
 );
 
-
-CREATE TABLE UserInfo(
-	id INT AUTO_INCREMENT PRIMARY KEY,
-    email nvarchar(255) NOT NULL,
-    password nvarchar(255) NOT NULL,
-    FName nvarchar(255) NOT NULL,
-    LName nvarchar(255) NOT NULL,
-    ChosenPackageID INT NOT NULL,
-    
-    FOREIGN KEY(ChosenPackageID) REFERENCES Packages(id)
+-- Rooms tablebooksPRIMARYbook_id
+CREATE TABLE rooms (
+    room_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
-
-
-
-CREATE TABLE ApplianceStatus(
-	id INT AUTO_INCREMENT PRIMARY KEY,
-    UpTime FLOAT NOT NULL,
-    CurrentStatus NVARCHAR(255) NOT NULL,
-	LastIssueTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    LastIssueError NVARCHAR(255) NOT NUll
+-- Devices table (base table for all devices)
+CREATE TABLE devices (
+    device_id INT AUTO_INCREMENT PRIMARY KEY,
+    room_id INT NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    type ENUM('light', 'socket', 'thermostat', 'camera') NOT NULL,
+    status ENUM('on', 'off') DEFAULT 'off',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (room_id) REFERENCES rooms(room_id) ON DELETE CASCADE
 );
 
-
-CREATE TABLE OfferedAppliances(
-	id INT AUTO_INCREMENT PRIMARY KEY,
-    ApplianceType NVARCHAR(255) NOT NULL,
-	Maker NVARCHAR(255) NOT NULL,
-    WarrantyYears INT NOT NULL
+-- Lights table (extends devices)
+CREATE TABLE lights (
+    light_id INT PRIMARY KEY,
+    brightness INT DEFAULT 100 CHECK (brightness BETWEEN 0 AND 100),
+    color_temperature INT,
+    FOREIGN KEY (light_id) REFERENCES devices(device_id) ON DELETE CASCADE
 );
 
-
-CREATE TABLE UserAppliances(
-	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    ModelNumber INT NOT NULL,
-    ApplianceID INT NOT NULL,
-    UserID INT NOT NULL,
-    ApplianceStatusID INT NOT NULL,
-    
-    FOREIGN KEY(ApplianceID) REFERENCES OfferedAppliances(id),
-	FOREIGN KEY(UserID) REFERENCES UserInfo(id),
-    FOREIGN KEY(ApplianceStatusID) REFERENCES ApplianceStatus(id)
+-- Sockets table (extends devices)
+CREATE TABLE sockets (
+    socket_id INT PRIMARY KEY,
+    power_consumption FLOAT,
+    FOREIGN KEY (socket_id) REFERENCES devices(device_id) ON DELETE CASCADE
 );
 
-
-CREATE TABLE Logs(
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    UserID INT NOT NULL,
-    Action NVARCHAR(255) NOT NULL,
-    ActionTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ApplianceID INT,
-    
-    FOREIGN KEY(UserID) REFERENCES UserInfo(id),
-    FOREIGN KEY(ApplianceID) REFERENCES UserAppliances(id)
+-- Thermostats table (extends devices)
+CREATE TABLE thermostats (
+    thermostat_id INT PRIMARY KEY,
+    current_temperature FLOAT NOT NULL,
+    target_temperature FLOAT NOT NULL,
+    mode ENUM('heat', 'cool', 'auto', 'off') DEFAULT 'auto',
+    FOREIGN KEY (thermostat_id) REFERENCES devices(device_id) ON DELETE CASCADE
 );
+
+-- Cameras table (extends devices)
+CREATE TABLE cameras (
+    camera_id INT PRIMARY KEY,
+    is_streaming BOOLEAN DEFAULT FALSE,
+    last_motion_detection TIMESTAMP NULL,
+    FOREIGN KEY (camera_id) REFERENCES devices(device_id) ON DELETE CASCADE
+);
+
+-- Automation rules
+CREATE TABLE automations (
+    automation_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    trigger_device_id INT,
+    trigger_condition VARCHAR(255),
+    action_device_id INT NOT NULL,
+    action_command VARCHAR(255) NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (trigger_device_id) REFERENCES devices(device_id) ON DELETE SET NULL,
+    FOREIGN KEY (action_device_id) REFERENCES devices(device_id) ON DELETE CASCADE
+);
+
+-- Activity log
+CREATE TABLE activity_log (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    device_id INT,
+    action VARCHAR(255) NOT NULL,
+    action_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL,
+    FOREIGN KEY (device_id) REFERENCES devices(device_id) ON DELETE SET NULL
+);
+USE smart_home_system;
+SELECT * FROM users;

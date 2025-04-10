@@ -1,7 +1,15 @@
+const API_BASE_URL = 'http://localhost:5000';
+
 // Set the room name from URL parameter
 function getRoomNameFromURL() {
     const params = new URLSearchParams(window.location.search);
     return params.get('roomName') || 'Room Control';
+}
+
+// Update the getRoomNameFromURL function
+function getRoomIdFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('roomId');
 }
 
 // Update the room header
@@ -58,35 +66,69 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Add a new light button when the "Add lights +" button is clicked
-    addLightsButton.addEventListener('click', function () {
-        const lightId = lights.length + 1;
-        const light = { id: lightId, name: `Light ${lightId}`, state: 'off', dimmer: 100 };
-        lights.push(light);
+    addLightsButton.addEventListener('click', async function () {
+        const roomId = getRoomIdFromURL();
+        const lightName = `Light ${lightsContainer.childElementCount + 1}`;
+        
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE_URL}/rooms/${roomId}/devices`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    name: lightName,
+                    type: 'light',
+                    status: 'off'
+                })
+            });
 
-        // Create a button for the light
-        const newLightButton = document.createElement('button');
-        newLightButton.textContent = light.name;
-        newLightButton.className = 'btn btn-secondary mt-2';
-        newLightButton.dataset.state = light.state;
-        newLightButton.dataset.dimmer = light.dimmer;
+            if (!response.ok) throw new Error('Failed to add light');
 
-        // Add functionality to the light button
-        newLightButton.addEventListener('click', function () {
-            showModal(newLightButton);
-        });
+            const newLight = await response.json();
+            
+            // Create the light button with the ID from the database
+            const newLightButton = document.createElement('button');
+            newLightButton.textContent = lightName;
+            newLightButton.className = 'btn btn-secondary mt-2';
+            newLightButton.dataset.id = newLight.device_id;
+            newLightButton.dataset.state = 'off';
+            newLightButton.dataset.dimmer = '100';
 
-        lightsContainer.appendChild(newLightButton);
-        updateJsonDisplay(); // Update the JSON display
+            newLightButton.addEventListener('click', function () {
+                showModal(newLightButton);
+            });
+
+            lightsContainer.appendChild(newLightButton);
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error adding light');
+        }
     });
 
     // Toggle the light state
-    toggleLightBtn.addEventListener('click', () => {
+    toggleLightBtn.addEventListener('click', async () => {
         if (currentLightButton) {
-            const currentState = currentLightButton.dataset.state;
-            const newState = currentState === 'off' ? 'on' : 'off';
-            currentLightButton.dataset.state = newState;
-            updateToggleButton();
-            updateDimmer();
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_BASE_URL}/devices/${currentLightButton.dataset.id}/toggle`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to toggle light');
+
+                const result = await response.json();
+                currentLightButton.dataset.state = result.status;
+                updateToggleButton();
+                updateDimmer();
+            } catch (error) {
+                console.error('Error:', error);
+            }
         }
     });
 
@@ -146,21 +188,50 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Function to add a socket
-    addSocketBtn.addEventListener('click', function () {
-        const socketId = sockets.length + 1;
-        const socket = { id: socketId, name: `Socket ${socketId}` };
-        sockets.push(socket);
+    addSocketBtn.addEventListener('click', async function () {
+        const roomId = getRoomIdFromURL();
+        const socketName = `Socket ${socketsContainer.childElementCount + 1}`;
+        
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_BASE_URL}/rooms/${roomId}/devices`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    name: socketName,
+                    type: 'socket',
+                    status: 'off'
+                })
+            });
 
-        // Create a button for the socket
+            if (!response.ok) throw new Error('Failed to add socket');
 
+            const newSocket = await response.json();
+            
+            // Create the socket button with the ID from the database
+            const newSocketButton = document.createElement('button');
+            newSocketButton.textContent = socketName;
+            newSocketButton.className = 'btn btn-secondary m-2 socket-btn';
+            newSocketButton.dataset.id = newSocket.device_id;
+            newSocketButton.dataset.state = 'off';
 
-        // Add functionality to the socket button
-        socketButton.addEventListener('click', function () {
-            alert(`You clicked ${socket.name}`);
-        });
+            newSocketButton.addEventListener('click', function () {
+                currentSocket = sockets.find(s => s.id === parseInt(newSocketButton.dataset.id));
+                if (currentSocket) {
+                    socketControlTitle.textContent = currentSocket.name;
+                    updateSocketControlButtons();
+                    socketControlModal.style.display = 'block';
+                }
+            });
 
-        socketsButtonsContainer.appendChild(socketButton);
-        updateJsonDisplay(); // Update the JSON display
+            socketsContainer.appendChild(newSocketButton);
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error adding socket');
+        }
     });
 
     // Initialize JSON display
