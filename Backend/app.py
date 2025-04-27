@@ -3,7 +3,7 @@ from database_communications import SmartHomeDB
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS
 import jwt
-import datetime
+import datetime 
 from functools import wraps
 
 app = Flask(__name__)
@@ -23,7 +23,7 @@ def token_required(f):
             
         try:
             data = jwt.decode(token.split()[1], app.config['SECRET_KEY'], algorithms=["HS256"])
-            current_user = db.get_user(data['username'])
+            current_user = db.get_user(data['email'])
         except:
             return jsonify({'message': 'Token is invalid!'}), 401
             
