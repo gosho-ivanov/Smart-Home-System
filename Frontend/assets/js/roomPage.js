@@ -1,16 +1,11 @@
-// Set the room name and ID from URL parameters
-function getRoomParamsFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    return {
-        name: params.get('roomName') || 'Room Control',
-        id: parseInt(params.get('roomId')) || 0
-    };
-}
+const BACKEND_BASE_URL = 'http://127.0.0.1:5000';
 
 // Global variables
 let currentRoom = {};
 let authToken = localStorage.getItem('authToken');
-let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+let currentUser = JSON.parse(localStorage.getItem('user_id'));
+const params = new URLSearchParams(window.location.search);
+const roomId = parseInt(params.get('roomId'), 10);
 
 // Helper function for API calls
 async function makeApiCall(url, method = 'GET', body = null) {
@@ -29,7 +24,7 @@ async function makeApiCall(url, method = 'GET', body = null) {
     }
 
     try {
-        const response = await fetch(url, options);
+        const response = await fetch(`${BACKEND_BASE_URL}${url}`, options);
         if (!response.ok) {
             throw new Error(`API request failed: ${response.status}`);
         }
@@ -43,7 +38,7 @@ async function makeApiCall(url, method = 'GET', body = null) {
 // Load devices for the current room
 async function loadDevices() {
     try {
-        const devices = await makeApiCall(`/api/rooms/${currentRoom.id}/devices`);
+        const devices = await makeApiCall(`/api/rooms/${roomId}/devices`);
         renderDevices(devices);
     } catch (error) {
         alert('Failed to load devices. Please try again.');
@@ -79,8 +74,8 @@ function renderDevices(devices) {
     // Update thermostat display if exists
     if (thermostats.length > 0) {
         const thermostat = thermostats[0];
-        document.getElementById('current-temperature').textContent = thermostat.current_temperature;
-        document.getElementById('targeted-temperature').textContent = thermostat.target_temperature;
+        document.getElementById('current-temperature').textContent = thermostat.current_temperature || '20';
+        document.getElementById('targeted-temperature').textContent = thermostat.target_temperature || '20';
     }
 }
 
@@ -136,55 +131,9 @@ async function toggleDevice(deviceId) {
     }
 }
 
-// Add a new device
-async function addDevice(roomId, name, type) {
-    try {
-        const result = await makeApiCall(
-            `/api/rooms/${roomId}/devices`,
-            'POST',
-            { name, type, status: 'off' }
-        );
-        return result.device_id;
-    } catch (error) {
-        console.error('Failed to add device:', error);
-        throw error;
-    }
-}
-
-// Delete a device
-async function deleteDevice(deviceId) {
-    // Note: You'll need to implement a DELETE endpoint in your backend
-    try {
-        await makeApiCall(
-            `/api/devices/${deviceId}`,
-            'DELETE'
-        );
-        return true;
-    } catch (error) {
-        console.error('Failed to delete device:', error);
-        throw error;
-    }
-}
-
-// Update thermostat temperature
-async function updateThermostat(deviceId, currentTemp, targetTemp) {
-    // Note: You'll need to implement this endpoint in your backend
-    try {
-        await makeApiCall(
-            `/api/devices/${deviceId}/thermostat`,
-            'PUT',
-            { current_temperature: currentTemp, target_temperature: targetTemp }
-        );
-        return true;
-    } catch (error) {
-        console.error('Failed to update thermostat:', error);
-        throw error;
-    }
-}
-
 // Light Control Modal Functions
 function showLightControlModal(light) {
-    const modal = document.getElementById('myModal');
+    const modal = document.getElementById('light-control-modal');
     const toggleBtn = document.getElementById('toggle-light');
     const deleteBtn = document.getElementById('delete-light');
     const dimmer = document.getElementById('dimmer');
@@ -217,22 +166,24 @@ function showLightControlModal(light) {
     deleteBtn.onclick = async () => {
         if (confirm('Are you sure you want to delete this light?')) {
             try {
-                await deleteDevice(light.device_id);
+                await makeApiCall(
+                    `/api/devices/${light.device_id}`,
+                    'DELETE'
+                );
                 const lightBtn = document.querySelector(`.light-btn[data-id="${light.device_id}"]`);
-                if (lightBtn) {
-                    lightBtn.remove();
-                }
+                if (lightBtn) lightBtn.remove();
                 modal.style.display = 'none';
+                await loadDevices();
             } catch (error) {
                 alert('Failed to delete light. Please try again.');
             }
         }
     };
 
-    dimmer.oninput = async () => {
+    dimmer.oninput = () => {
         dimmerValue.textContent = `${dimmer.value}%`;
-        // Note: You'll need to implement brightness update in your backend
-        // await updateLightBrightness(light.device_id, dimmer.value);
+        // Implement brightness update when backend is ready
+        // updateLightBrightness(light.device_id, dimmer.value);
     };
 
     modal.style.display = 'block';
@@ -269,12 +220,14 @@ function showSocketControlModal(socket) {
     deleteBtn.onclick = async () => {
         if (confirm('Are you sure you want to delete this socket?')) {
             try {
-                await deleteDevice(socket.device_id);
+                await makeApiCall(
+                    `/api/devices/${socket.device_id}`,
+                    'DELETE'
+                );
                 const socketBtn = document.querySelector(`.socket-btn[data-id="${socket.device_id}"]`);
-                if (socketBtn) {
-                    socketBtn.remove();
-                }
+                if (socketBtn) socketBtn.remove();
                 modal.style.display = 'none';
+                await loadDevices();
             } catch (error) {
                 alert('Failed to delete socket. Please try again.');
             }
@@ -292,77 +245,87 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // Get room info from URL
-    currentRoom = getRoomParamsFromURL();
-    document.getElementById('room-header').textContent = currentRoom.name;
+    // Set room header
+    document.getElementById('room-header').textContent = 
+        localStorage.getItem('selectedRoom') || 'Room Control';
 
-    // Back button functionality
+    // Back button
     document.getElementById('back-btn').addEventListener('click', () => {
+        localStorage.removeItem('selectedRoom');
         window.location.href = 'mainPage.html';
     });
 
-    // Load devices for the room
-    await loadDevices();
+    // Load devices if valid room
+    if (roomId) {
+        await loadDevices();
+    } else {
+        alert('No room selected. Redirecting...');
+        window.location.href = 'mainPage.html';
+        return;
+    }
 
-    // Add Light button
+    // Add device buttons
     document.getElementById('btn-add-light').addEventListener('click', async () => {
-        const lightName = prompt('Enter light name:');
-        if (lightName) {
+        const name = prompt('Enter light name:');
+        if (name) {
             try {
-                await addDevice(currentRoom.id, lightName, 'light');
-                await loadDevices(); // Refresh the device list
+                await makeApiCall(
+                    `/api/rooms/${roomId}/devices`,
+                    'POST',
+                    { name, type: 'light', status: 'off' }
+                );
+                await loadDevices();
             } catch (error) {
-                alert('Failed to add light. Please try again.');
+                alert('Failed to add light: ' + error.message);
             }
         }
     });
 
-    // Add Socket button
     document.getElementById('btn-add-socket').addEventListener('click', async () => {
-        const socketName = prompt('Enter socket name:');
-        if (socketName) {
+        const name = prompt('Enter socket name:');
+        if (name) {
             try {
-                await addDevice(currentRoom.id, socketName, 'socket');
-                await loadDevices(); // Refresh the device list
+                await makeApiCall(
+                    `/api/rooms/${roomId}/devices`,
+                    'POST',
+                    { name, type: 'socket', status: 'off' }
+                );
+                await loadDevices();
             } catch (error) {
-                alert('Failed to add socket. Please try again.');
+                alert('Failed to add socket: ' + error.message);
             }
         }
     });
 
     // Temperature controls
-    const tempUpBtn = document.getElementById('btn-temp-up');
-    const tempDownBtn = document.getElementById('btn-temp-down');
-    const targetedTempElement = document.getElementById('targeted-temperature');
+    const tempUp = document.getElementById('btn-temp-up');
+    const tempDown = document.getElementById('btn-temp-down');
+    const tempDisplay = document.getElementById('targeted-temperature');
 
-    tempUpBtn.addEventListener('click', () => {
-        const currentTemp = parseInt(targetedTempElement.textContent);
-        targetedTempElement.textContent = currentTemp + 1;
-        // Note: You'll need to implement thermostat update in your backend
-        // updateThermostat(thermostatDeviceId, null, currentTemp + 1);
-    });
+    if (tempUp && tempDown && tempDisplay) {
+        tempUp.addEventListener('click', () => {
+            tempDisplay.textContent = parseInt(tempDisplay.textContent) + 1;
+        });
 
-    tempDownBtn.addEventListener('click', () => {
-        const currentTemp = parseInt(targetedTempElement.textContent);
-        if (currentTemp > 10) { // Minimum temperature check
-            targetedTempElement.textContent = currentTemp - 1;
-            // Note: You'll need to implement thermostat update in your backend
-            // updateThermostat(thermostatDeviceId, null, currentTemp - 1);
-        }
-    });
+        tempDown.addEventListener('click', () => {
+            const currentTemp = parseInt(tempDisplay.textContent);
+            if (currentTemp > 10) {
+                tempDisplay.textContent = currentTemp - 1;
+            }
+        });
+    }
 
-    // Modal close buttons
-    document.querySelectorAll('.close, .close-socket-control').forEach(btn => {
-        btn.addEventListener('click', function() {
-            document.getElementById('myModal').style.display = 'none';
+    // Modal close handlers
+    document.querySelectorAll('.close-modal').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.getElementById('light-control-modal').style.display = 'none';
             document.getElementById('socket-control-modal').style.display = 'none';
         });
     });
 
-    // Close modals when clicking outside
     window.addEventListener('click', (e) => {
-        if (e.target === document.getElementById('myModal')) {
-            document.getElementById('myModal').style.display = 'none';
+        if (e.target === document.getElementById('light-control-modal')) {
+            document.getElementById('light-control-modal').style.display = 'none';
         }
         if (e.target === document.getElementById('socket-control-modal')) {
             document.getElementById('socket-control-modal').style.display = 'none';

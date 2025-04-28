@@ -64,6 +64,12 @@ class SmartHomeDB:
         query = "SELECT * FROM rooms WHERE user_id = %s"
         return self.execute_query(query, (user_id,), fetch=True)
     
+    def delete_room(self, room_id, user_id):
+        query = "DELETE FROM rooms WHERE room_id = %s AND user_id = %s"
+        self.cursor.execute(query, (room_id, user_id))
+        self.connection.commit()
+        return self.cursor.rowcount  # Returns the number of rows affected
+    
     # Device management
     def add_device(self, room_id, name, device_type, status='off'):
         query = """

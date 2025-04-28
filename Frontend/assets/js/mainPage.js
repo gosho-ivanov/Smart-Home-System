@@ -12,10 +12,37 @@ document.addEventListener('DOMContentLoaded', function () {
     let rooms = [];
 
     // Initialize the room container with sample rooms
-    function initializeRooms() {
-        rooms.forEach(room => {
-            addRoomToContainer(room);
-        });
+    async function initializeRooms() {
+        try {
+            const token = localStorage.getItem('token'); // Get the token from local storage
+            if (!token) {
+                alert('You are not logged in. Redirecting to login page.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const response = await fetch('http://localhost:5000/api/rooms', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch rooms from the backend');
+            }
+
+            const roomsData = await response.json();
+            rooms = roomsData; // Update the global rooms array
+
+            // Add each room to the container
+            rooms.forEach(room => {
+                addRoomToContainer(room);
+            });
+        } catch (error) {
+            console.error('Error loading rooms:', error);
+            alert('Failed to load rooms. Please try again later.');
+        }
     }
 
     // Show the modal when the "Create a Room" button is clicked
@@ -37,26 +64,41 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Handle the save room button click
-    saveRoomBtn.addEventListener('click', function () {
+    saveRoomBtn.addEventListener('click', async function () {
         const roomName = document.getElementById('room-name').value.trim();
         if (!roomName) {
             alert('Please enter a room name.');
             return;
         }
 
-        // Add the room to the array
-        const newRoom = { 
-            id: Date.now(), // Use timestamp as unique ID
-            name: roomName 
-        };
-        rooms.push(newRoom);
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('http://localhost:5000/api/rooms', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ name: roomName })
+            });
 
-        // Update the room container
-        addRoomToContainer(newRoom);
+            if (!response.ok) {
+                throw new Error('Failed to create room');
+            }
 
-        // Clear the input and hide the modal
-        document.getElementById('room-name').value = '';
-        modal.style.display = 'none';
+            const newRoom = await response.json();
+            rooms.push({ id: newRoom.room_id, name: roomName });
+
+            // Update the room container
+            addRoomToContainer({ id: newRoom.room_id, name: roomName });
+
+            // Clear the input and hide the modal
+            document.getElementById('room-name').value = '';
+            modal.style.display = 'none';
+        } catch (error) {
+            console.error('Error creating room:', error);
+            alert('Failed to create room. Please try again.');
+        }
     });
 
     // Function to add a room to the container
@@ -70,12 +112,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Add click event to navigate to the room page
         roomCard.addEventListener('click', function () {
-            localStorage.setItem('selectedRoom', room.name);
-            window.location.href = 'roomPage.html';
+            localStorage.setItem('selectedRoom', room.name); // Store the room name
+            window.location.href = `roomPage.html?roomId=${room.room_id}`; // Pass the room ID in the URL
         });
-
         roomContainer.appendChild(roomCard);
-        
+
         // Add animation
         roomCard.style.opacity = '0';
         setTimeout(() => {

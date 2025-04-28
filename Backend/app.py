@@ -69,6 +69,20 @@ def rooms(current_user):
         room_id = db.create_room(current_user['user_id'], data['name'])
         return jsonify({'room_id': room_id}), 201
 
+@app.route('/api/rooms/<int:room_id>', methods=['DELETE'])
+@token_required
+def delete_room(current_user, room_id):
+    try:
+        # Call the database function to delete the room
+        rows_deleted = db.delete_room(room_id, current_user['user_id'])
+        
+        if rows_deleted == 0:
+            return jsonify({'message': 'Room not found or not authorized to delete'}), 404
+        
+        return jsonify({'message': 'Room deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({'message': 'Failed to delete room', 'error': str(e)}), 500
+
 # Device Routes
 @app.route('/api/rooms/<int:room_id>/devices', methods=['GET', 'POST'])
 @token_required
