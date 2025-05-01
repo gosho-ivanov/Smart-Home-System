@@ -8,14 +8,51 @@ document.addEventListener('DOMContentLoaded', function () {
     const cameraWindow = document.getElementById('camera-window');
     const closeCameraWindowBtn = document.getElementById('close-camera-window');
 
+    // Logout button functionality
+    document.getElementById('logout-btn').addEventListener('click', function () {
+        if (confirm('Are you sure you want to log out?')) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('selectedRoom');
+            window.location.href = 'login.html';
+        }
+    });
+
     // Sample rooms data (would normally come from backend)
     let rooms = [];
 
     // Initialize the room container with sample rooms
-    function initializeRooms() {
-        rooms.forEach(room => {
-            addRoomToContainer(room);
-        });
+    async function initializeRooms() {
+        try {
+            const token = localStorage.getItem('token'); // Get the token from local storage
+            if (!token) {
+                alert('You are not logged in. Redirecting to login page.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const response = await fetch('http://localhost:5000/api/rooms', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch rooms from the backend');
+            }
+
+            const roomsData = await response.json();
+            rooms = roomsData; // Update the global rooms array
+
+            // Add each room to the container
+            rooms.forEach(room => {
+                addRoomToContainer(room);
+            });
+        } catch (error) {
+            console.error('Error loading rooms:', error);
+            alert('Failed to load rooms. Please try again later.');
+        }
     }
 
     // Show the modal when the "Create a Room" button is clicked
@@ -37,26 +74,41 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Handle the save room button click
-    saveRoomBtn.addEventListener('click', function () {
+    saveRoomBtn.addEventListener('click', async function () {
         const roomName = document.getElementById('room-name').value.trim();
         if (!roomName) {
             alert('Please enter a room name.');
             return;
         }
 
-        // Add the room to the array
-        const newRoom = { 
-            id: Date.now(), // Use timestamp as unique ID
-            name: roomName 
-        };
-        rooms.push(newRoom);
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('http://localhost:5000/api/rooms', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ name: roomName })
+            });
 
-        // Update the room container
-        addRoomToContainer(newRoom);
+            if (!response.ok) {
+                throw new Error('Failed to create room');
+            }
 
-        // Clear the input and hide the modal
-        document.getElementById('room-name').value = '';
-        modal.style.display = 'none';
+            const newRoom = await response.json();
+            rooms.push({ id: newRoom.room_id, name: roomName });
+
+            // Update the room container
+            addRoomToContainer({ id: newRoom.room_id, name: roomName });
+
+            // Clear the input and hide the modal
+            document.getElementById('room-name').value = '';
+            modal.style.display = 'none';
+        } catch (error) {
+            console.error('Error creating room:', error);
+            alert('Failed to create room. Please try again.');
+        }
     });
 
     // Function to add a room to the container
@@ -66,23 +118,50 @@ document.addEventListener('DOMContentLoaded', function () {
         roomCard.innerHTML = `
             <span>${room.name}</span>
             <div class="room-icon">🏠</div>
+            <button class="delete-room btn btn-danger btn-sm">Delete</button>
         `;
-
-        // Add click event to navigate to the room page
-        roomCard.addEventListener('click', function () {
+    
+        // Navigate to room page
+        // Add click event to the entire card (excluding delete button)
+        roomCard.addEventListener('click', function (e) {
+            if (e.target.closest('.delete-room')) return; // Don't trigger when clicking delete
             localStorage.setItem('selectedRoom', room.name);
-            window.location.href = 'roomPage.html';
+            window.location.href = `roomPage.html?roomId=${room.room_id}`;
         });
 
+    
+        // Handle deletion
+        roomCard.querySelector('.delete-room').addEventListener('click', async function (e) {
+            e.stopPropagation(); // prevent navigating to room page
+            if (!confirm(`Delete room "${room.name}"?`)) return;
+    
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`http://localhost:5000/api/rooms/${room.room_id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+    
+                if (!response.ok) throw new Error('Failed to delete room');
+                roomCard.remove(); // Remove from DOM
+            } catch (err) {
+                alert('Error deleting room. Try again.');
+                console.error(err);
+            }
+        });
+    
         roomContainer.appendChild(roomCard);
-        
-        // Add animation
+    
+        // Animation
         roomCard.style.opacity = '0';
         setTimeout(() => {
             roomCard.style.transition = 'opacity 0.3s ease';
             roomCard.style.opacity = '1';
         }, 10);
     }
+    
 
     // Camera Window
     cameraBtn.addEventListener('click', () => {
