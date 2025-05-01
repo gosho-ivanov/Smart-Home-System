@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, Response, request, jsonify
 from database_communications import SmartHomeDB
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS
@@ -6,12 +6,33 @@ import jwt
 import datetime 
 from functools import wraps
 from mysql.connector import Error
+import cv2
 
 app = Flask(__name__)
 CORS(app)
 app.config['SECRET_KEY'] = 'your-secret-key-here'  # Change this in production!
 
 db = SmartHomeDB()
+camera = cv2.VideoCapture(0)
+
+def generate_frames():
+    while True:
+        success, frame = camera.read()
+        if not success:
+            break
+        _, buffer = cv2.imencode('.jpg', frame)
+        frame = buffer.tobytes()
+
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/')
+def index():
+    return '<img src="/video_feed" />'
 
 # Authentication decorator
 def token_required(f):
@@ -160,4 +181,4 @@ def update_thermostat(current_user, room_id):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=3306, debug=True)
