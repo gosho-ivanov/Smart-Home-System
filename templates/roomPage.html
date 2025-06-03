@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Room Control</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="static/assets/css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <header class="d-flex justify-content-between align-items-center p-3 bg-dark text-white">
+    <h1 id="room-header" class="m-0">Room Control</h1>
+    <button class="btn btn-outline-light" id="back-btn">
+      <i class="fas fa-arrow-left"></i> Back to Home
+    </button>
+  </header>
+
+  <main class="container mt-4">
+    <!-- Lights Section -->
+    <section id="lights-container" class="mb-5">
+      <h2><i class="fas fa-lightbulb"></i> Lights</h2>
+      <button id="btn-add-light" class="btn btn-primary mb-3">
+        <i class="fas fa-plus"></i> Add Light
+      </button>
+      <div id="lights-buttons" class="d-flex flex-wrap"></div>
+    </section>
+
+    <!-- Temperature Section -->
+    <section id="temperature-container" class="mb-5">
+      <h2><i class="fas fa-thermometer-half"></i> Temperature</h2>
+      <p>Current: <span id="current-temperature">22</span>°C</p>
+      <p>Target: <span id="targeted-temperature">24</span>°C</p>
+      <div class="btn-group">
+        <button id="btn-temp-up" class="btn btn-success">
+          <i class="fas fa-arrow-up"></i>
+        </button>
+        <button id="btn-temp-down" class="btn btn-danger">
+          <i class="fas fa-arrow-down"></i>
+        </button>
+      </div>
+       
+    </section>
+<!-- Create Light Modal -->
+    <div id="modal-add-light" class="modal">
+      <div class="modal-content">
+        <h2>Create New Light</h2>
+        <input type="text" id="light-name" placeholder="Enter light name" />
+        <input type="text" id="light-port" placeholder="Enter light port" />
+        <div class="modal-buttons">
+          <button id="exit-modal" class="btn btn-secondary">Cancel</button>
+          <button id="save-light" class="btn btn-primary">Save Light</button>
+        </div>
+      </div>
+      </div>           
+    <!-- Light Control Modal -->
+    <div id="light-control-modal" class="modal" style="display: none;">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content p-4">
+          <span class="close-modal btn btn-sm btn-outline-secondary align-self-end">&times;</span>
+          <h4 class="mb-3">Light Control</h4>
+          <button id="toggle-light" class="btn mb-3">Turn On</button>
+          <label for="dimmer">Brightness:</label>
+          <input type="range" id="dimmer" min="0" max="100" value="100" class="form-range mb-2"/>
+          <div>Value: <span id="dimmer-value">100%</span></div>
+          <button id="delete-light" class="btn btn-danger mt-3">Delete Light</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="static/assets/js/roomPage.js"></script>
+</body>
+</html>

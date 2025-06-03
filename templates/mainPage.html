@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page - Smart Home System</title>
+    <link rel="stylesheet" href="static/assets/css/styles.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="page-wrapper">
+        <header class="d-flex justify-content-between align-items-center p-3 bg-dark text-white">
+            <h1 class="navbar-brand m-0">Smart Home System</h1>
+            <button id="logout-btn" class="btn btn-outline-light">Logout</button>
+        </header>        
+        <main class="main-content">
+            <section class="main-section">
+                <div id="room-container">
+                    <!-- Room container will be populated dynamically -->
+                </div>
+                <div class="button-container">
+                    <button id="create-room-btn" class="btn btn-primary">
+                        <span class="icon">+</span> Create a Room
+                    </button>
+                    <button id="camera-btn" class="btn btn-secondary">
+                        <span class="icon">📷</span> Camera View
+                    </button>
+                </div>
+                
+                <!-- Create Room Modal -->
+                <div id="modal">
+                    <div class="modal-content">
+                        <h2>Create New Room</h2>
+                        <input type="text" id="room-name" placeholder="Enter room name" />
+                        <input type="text" id="thermostat-port" placeholder="Enter thermostat port" />
+                        <div class="modal-buttons">
+                            <button id="exit-modal" class="btn btn-secondary">Cancel</button>
+                            <button id="save-room" class="btn btn-primary">Save Room</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Camera Window -->
+                <div id="camera-window">
+                    <button id="close-camera-window">×</button>
+                    <h2>Live Camera Feed</h2>
+                     <img id="live-camera-feed" src="{{ url_for('video_feed') }}" alt="Live camera feed" />
+                    </div>
+                </div>
+            </section>
+        </main>
+        <footer>
+            <p>&copy; 2025 Smart Home System</p>
+        </footer>
+    </div>
+    <script src="static/assets/js/mainPage.js"></script>
+</body>
+</html>
