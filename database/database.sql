@@ -92,5 +92,3 @@ CREATE TABLE activity_log (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL,
     FOREIGN KEY (device_id) REFERENCES devices(device_id) ON DELETE SET NULL
 );
-DROP DATABASE smart_home_system;
-SELECT * FROM users;

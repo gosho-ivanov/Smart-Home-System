@@ -1,7 +1,7 @@
 import mysql.connector
 from mysql.connector import Error
 import json
-
+import os
 
 class SmartHomeDB:
     def __init__(self):
@@ -11,11 +11,11 @@ class SmartHomeDB:
     def connect(self):
         try:
             self.connection = mysql.connector.connect(
-                host='localhost',
-                database='smart_home_system',
-                user='root',
-                password='2Bme6AqgzU5xLq'
-            )
+                host=os.environ.get("MYSQL_HOST", "localhost"),
+                database=os.environ.get("MYSQL_DATABASE", "smart_home_system"),
+                user=os.environ.get("MYSQL_USER", "root"),
+                password=os.environ.get("MYSQL_PASSWORD", "2Bme6AqgzU5xLq")
+            )   
             if self.connection.is_connected():
                 print("Connected to MySQL database")
         except Error as e:
